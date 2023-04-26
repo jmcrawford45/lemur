@@ -21,9 +21,13 @@ import requests
 import json
 import sys
 import base64
+from typing import Any
+from typing import Dict
+from typing import List
+from requests.models import Response
 
 
-def handle_response(my_response):
+def handle_response(my_response: Response) -> Dict[str, str]:
     """
     Helper function for parsing responses from the Entrust API.
     :param my_response:
@@ -127,11 +131,11 @@ class AzureDestinationPlugin(DestinationPlugin):
         }
     ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.session = requests.Session()
         super(AzureDestinationPlugin, self).__init__(*args, **kwargs)
 
-    def upload(self, name, body, private_key, cert_chain, options, **kwargs):
+    def upload(self, name: str, body: str, private_key: str, cert_chain: str, options: List[Dict[str, str]], **kwargs: Any) -> None:
         """
         Upload certificate and private key
 

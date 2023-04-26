@@ -16,6 +16,7 @@ from lemur.certificates.models import Certificate
 from lemur.common.utils import truthiness, check_validation
 from lemur.notifications.models import Notification
 from lemur.logs import service as log_service
+from mypy_extensions import NoReturn
 
 
 def create_default_expiration_notifications(name, recipients, intervals=None):
@@ -167,7 +168,7 @@ def get_by_label(label):
     return database.get(Notification, label, field="label")
 
 
-def get_all():
+def get_all() -> NoReturn:
     """
     Retrieves all notification currently known by Lemur.
 

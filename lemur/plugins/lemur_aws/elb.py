@@ -14,6 +14,9 @@ from sentry_sdk import capture_exception
 from lemur.extensions import metrics
 from lemur.exceptions import InvalidListener
 from lemur.plugins.lemur_aws.sts import sts_client
+from typing import Any
+from typing import Dict
+from typing import List
 
 
 def retry_throttled(exception):
@@ -64,7 +67,7 @@ def is_valid(listener_tuple):
 
 
 @sts_client("elb")
-def get_all_elbs(**kwargs):
+def get_all_elbs(**kwargs: Any) -> List[Dict[str, Any]]:
     """
     Fetches all elbs for a given account/region
 
@@ -87,7 +90,7 @@ def get_all_elbs(**kwargs):
         raise
 
 
-def _filter_ignored_elbsv1(elbs, **kwargs):
+def _filter_ignored_elbsv1(elbs: List[Dict[str, Any]], **kwargs: Any) -> List[Dict[str, Any]]:
     """
     Filter load balancers using the elb.describe_tags method.
     :param elbs: List of ELBs from elb.describe_load_balancers
@@ -97,7 +100,7 @@ def _filter_ignored_elbsv1(elbs, **kwargs):
     return _filter_ignored_elbs(elbs, "LoadBalancerName", "LoadBalancerNames", "LoadBalancerName", **kwargs)
 
 
-def _filter_ignored_elbsv2(elbs, **kwargs):
+def _filter_ignored_elbsv2(elbs: List[Dict[str, Any]], **kwargs: Any) -> List[Dict[str, Any]]:
     """
     Filter load balancers using the elbv2.describe_tags method.
     :param elbs: List of ELBs from elbv2.describe_load_balancers
@@ -107,7 +110,7 @@ def _filter_ignored_elbsv2(elbs, **kwargs):
     return _filter_ignored_elbs(elbs, "LoadBalancerArn", "ResourceArns", "ResourceArn", **kwargs)
 
 
-def _filter_ignored_elbs(elbs, key_field, arg_name, response_key_field, **kwargs):
+def _filter_ignored_elbs(elbs: List[Dict[str, Any]], key_field: str, arg_name: str, response_key_field: str, **kwargs: Any) -> List[Dict[str, Any]]:
     """
     Look up tags and remove any ELBs that should be ignored.
     :param elbs: List of dictionaries keyed by the field key_field
@@ -150,7 +153,7 @@ def _filter_ignored_elbs(elbs, key_field, arg_name, response_key_field, **kwargs
 
 
 @sts_client("elbv2")
-def get_all_elbs_v2(**kwargs):
+def get_all_elbs_v2(**kwargs: Any) -> List[Dict[str, Any]]:
     """
     Fetches all elbs for a given account/region
 
@@ -176,7 +179,7 @@ def get_all_elbs_v2(**kwargs):
 
 @sts_client("elbv2")
 @retry(retry_on_exception=retry_throttled, wait_fixed=2000, stop_max_attempt_number=20)
-def get_listener_arn_from_endpoint(endpoint_name, endpoint_port, **kwargs):
+def get_listener_arn_from_endpoint(endpoint_name: str, endpoint_port: int, **kwargs: Any) -> str:
     """
     Get a listener ARN from an endpoint.
     :param endpoint_name:
@@ -215,7 +218,7 @@ def get_listener_arn_from_endpoint(endpoint_name, endpoint_port, **kwargs):
 
 @sts_client("elbv2")
 @retry(retry_on_exception=retry_throttled, wait_fixed=2000, stop_max_attempt_number=5)
-def get_load_balancer_arn_from_endpoint(endpoint_name, **kwargs):
+def get_load_balancer_arn_from_endpoint(endpoint_name: str, **kwargs: Any) -> str:
     """
     Get a load balancer ARN from an endpoint.
     :param endpoint_name:
@@ -254,7 +257,7 @@ def get_elbs(**kwargs):
 
 
 @retry(retry_on_exception=retry_throttled, wait_fixed=2000, stop_max_attempt_number=20)
-def _get_elbs(**kwargs):
+def _get_elbs(**kwargs: Any) -> Dict[str, Any]:
     """
     Fetches one page elb objects for a given account and region.
     """
@@ -279,7 +282,7 @@ def get_elbs_v2(**kwargs):
 
 
 @retry(retry_on_exception=retry_throttled, wait_fixed=2000, stop_max_attempt_number=20)
-def _get_elbs_v2(**kwargs):
+def _get_elbs_v2(**kwargs: Any) -> Dict[str, Any]:
     """
     Fetches one page of elb objects for a given account and region.
 
@@ -297,7 +300,7 @@ def _get_elbs_v2(**kwargs):
 
 @sts_client("elbv2")
 @retry(retry_on_exception=retry_throttled, wait_fixed=2000, stop_max_attempt_number=20)
-def describe_listeners_v2(**kwargs):
+def describe_listeners_v2(**kwargs: Any) -> Dict[str, Any]:
     """
     Fetches one page of listener objects for a given elb arn.
 
@@ -351,7 +354,7 @@ def describe_load_balancer_policies(load_balancer_name, policy_names, **kwargs):
 
 @sts_client("elbv2")
 @retry(retry_on_exception=retry_throttled, wait_fixed=2000, stop_max_attempt_number=20)
-def describe_ssl_policies_v2(policy_names, **kwargs):
+def describe_ssl_policies_v2(policy_names: List[str], **kwargs: Any) -> Dict[str, Any]:
     """
     Fetching all policies currently associated with an ELB.
 

@@ -19,9 +19,12 @@ from lemur.plugins.bases import IssuerPlugin
 from lemur.plugins import lemur_cryptography as cryptography_issuer
 
 from lemur.certificates.service import create_csr
+from typing import Dict
+from typing import Tuple
+from typing import List
 
 
-def build_certificate_authority(options):
+def build_certificate_authority(options: Dict[str, str]) -> Tuple[str, str, str]:
     options["certificate_authority"] = True
     csr, private_key = create_csr(**options)
 
@@ -34,7 +37,7 @@ def build_certificate_authority(options):
     return cert_pem, private_key, chain_cert_pem
 
 
-def issue_certificate(csr, options, private_key=None):
+def issue_certificate(csr: str, options: Dict[str, str], private_key: str = None) -> Tuple[str, str]:
     csr = x509.load_pem_x509_csr(csr.encode("utf-8"), default_backend())
 
     if options.get("parent"):
@@ -143,7 +146,7 @@ def issue_certificate(csr, options, private_key=None):
     return cert_pem, chain_cert_pem
 
 
-def normalize_extensions(csr):
+def normalize_extensions(csr: CertificateSigningRequest) -> List:
     try:
         san_extension = csr.extensions.get_extension_for_oid(
             x509.oid.ExtensionOID.SUBJECT_ALTERNATIVE_NAME

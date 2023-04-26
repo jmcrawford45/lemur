@@ -27,9 +27,18 @@ from lemur.plugins import lemur_digicert as digicert
 from lemur.plugins.bases import IssuerPlugin, SourcePlugin
 from retrying import retry
 from requests.packages.urllib3.util.retry import Retry
+from typing import Dict
+from typing import List
+from typing import Tuple
+from typing import Any
+from requests.sessions import Session
+from requests.models import Response
+from typing import Optional
+from arrow.arrow import Arrow
+from typing import Union
 
 
-def log_status_code(r, *args, **kwargs):
+def log_status_code(r: Response, *args: Any, **kwargs: Any) -> None:
     """
     Is a request hook that logs all status codes to the digicert api.
 
@@ -47,7 +56,7 @@ def log_status_code(r, *args, **kwargs):
     current_app.logger.info(log_data)
 
 
-def signature_hash(signing_algorithm):
+def signature_hash(signing_algorithm: Optional[str]) -> str:
     """Converts Lemur's signing algorithm into a format DigiCert understands.
 
     :param signing_algorithm:
@@ -68,7 +77,7 @@ def signature_hash(signing_algorithm):
     raise Exception("Unsupported signing algorithm.")
 
 
-def determine_validity_years(years):
+def determine_validity_years(years: int) -> int:
     """
     Considering maximum allowed certificate validity period of 397 days, this method should not return
     more than 1 year of validity. Thus changing it to always return 1.
@@ -81,7 +90,7 @@ def determine_validity_years(years):
     return 1
 
 
-def determine_end_date(end_date):
+def determine_end_date(end_date: Union[Arrow, int]) -> Arrow:
     """
     Determine appropriate end date
 
@@ -99,7 +108,7 @@ def determine_end_date(end_date):
     return end_date
 
 
-def get_additional_names(options):
+def get_additional_names(options: Dict[str, Any]) -> List[str]:
     """
     Return a list of strings to be added to a SAN certificates.
 
@@ -115,7 +124,7 @@ def get_additional_names(options):
     return names
 
 
-def map_fields(options, csr):
+def map_fields(options: Dict[str, Any], csr: str) -> Dict[str, Any]:
     """Set the incoming issuer options to DigiCert fields/options.
 
     :param options:
@@ -204,7 +213,7 @@ def log_validity_truncation(options, function):
     current_app.logger.info(log_data)
 
 
-def handle_response(response):
+def handle_response(response: Response) -> Dict[str, Any]:
     """
     Handle the DigiCert API response and any errors it might have experienced.
     :param response:
@@ -254,7 +263,7 @@ def handle_cis_response(session, response):
 
 
 @retry(stop_max_attempt_number=10, wait_fixed=1000)
-def get_certificate_id(session, base_url, order_id):
+def get_certificate_id(session: Session, base_url: str, order_id: str) -> str:
     """Retrieve certificate order id from Digicert API."""
     order_url = "{0}/services/v2/order/certificate/{1}".format(base_url, order_id)
     response_data = handle_response(session.get(order_url))
@@ -327,7 +336,7 @@ class DigiCertIssuerPlugin(IssuerPlugin):
     author = "Kevin Glisson"
     author_url = "https://github.com/netflix/lemur.git"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the issuer with the appropriate details."""
         required_vars = [
             "DIGICERT_API_KEY",
@@ -358,7 +367,7 @@ class DigiCertIssuerPlugin(IssuerPlugin):
 
         super(DigiCertIssuerPlugin, self).__init__(*args, **kwargs)
 
-    def create_certificate(self, csr, issuer_options):
+    def create_certificate(self, csr: str, issuer_options: Dict[str, str]) -> Tuple[str, str, str]:
         """Create a DigiCert certificate.
 
         :param csr:
@@ -433,7 +442,7 @@ class DigiCertIssuerPlugin(IssuerPlugin):
         }
         return cert
 
-    def cancel_ordered_certificate(self, pending_cert, **kwargs):
+    def cancel_ordered_certificate(self, pending_cert: Any, **kwargs: Any) -> None:
         """ Set the certificate order to canceled """
         base_url = current_app.config.get("DIGICERT_URL")
         api_url = "{0}/services/v2/order/certificate/{1}/status".format(
@@ -459,7 +468,7 @@ class DigiCertIssuerPlugin(IssuerPlugin):
             )
 
     @staticmethod
-    def create_authority(options):
+    def create_authority(options: Dict[str, str]) -> Tuple[coroutine, str, List[Dict[str, str]]]:
         """Create an authority.
 
         Creates an authority, this authority is then used by Lemur to

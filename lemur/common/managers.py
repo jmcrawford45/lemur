@@ -9,6 +9,8 @@
 from flask import current_app
 
 from lemur.exceptions import InvalidConfiguration
+from typing import List
+from typing import Any
 
 
 # inspired by https://github.com/getsentry/sentry
@@ -19,7 +21,7 @@ class InstanceManager(object):
         self.instances = instances
         self.update(class_list)
 
-    def get_class_list(self):
+    def get_class_list(self) -> List[str]:
         return self.class_list
 
     def add(self, class_path):
@@ -38,7 +40,7 @@ class InstanceManager(object):
         self.cache = None
         self.class_list = class_list
 
-    def all(self):
+    def all(self) -> List[Any]:
         """
         Returns a list of cached instances.
         """

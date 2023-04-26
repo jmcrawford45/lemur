@@ -16,9 +16,13 @@ from lemur.plugins.bases import ExportPlugin
 from lemur.plugins import lemur_openssl as openssl
 from lemur.common.utils import get_psuedo_random_string, parse_certificate, check_validation
 from lemur.common.defaults import common_name
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 
-def run_process(command):
+def run_process(command: List[str]) -> None:
     """
     Runs a given command with pOpen and wraps some
     error handling around it.
@@ -35,7 +39,7 @@ def run_process(command):
         raise Exception(stderr)
 
 
-def create_pkcs12(cert, chain, p12_tmp, key, alias, passphrase):
+def create_pkcs12(cert: str, chain: str, p12_tmp: str, key: str, alias: str, passphrase: str) -> None:
     """
     Creates a pkcs12 formated file.
     :param cert:
@@ -113,7 +117,7 @@ class OpenSSLExportPlugin(ExportPlugin):
         },
     ]
 
-    def export(self, body, chain, key, options, **kwargs):
+    def export(self, body: str, chain: str, key: str, options: List[Dict[str, str]], **kwargs: Any) -> Tuple[str, str, bytes]:
         """
         Generates a PKCS#12 archive.
 

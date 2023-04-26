@@ -31,6 +31,7 @@ from lemur.policies.models import RotationPolicy
 from lemur.certificates.models import Certificate
 from lemur.destinations.models import Destination
 from lemur.notifications.models import Notification
+from typing import Any
 
 
 def validate_options(options):
@@ -57,7 +58,7 @@ def validate_options(options):
         )
 
 
-def get_object_attribute(data, many=False):
+def get_object_attribute(data: Any, many: bool = False) -> str:
     if many:
         ids = [d.get("id") for d in data]
         names = [d.get("name") for d in data]

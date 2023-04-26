@@ -49,6 +49,7 @@ from lemur.models import (
 from lemur.plugins.base import plugins
 from lemur.policies.models import RotationPolicy
 from lemur.utils import Vault
+from mypy_extensions import NoReturn
 
 
 def get_sequence(name):
@@ -71,7 +72,7 @@ def get_sequence(name):
     return root, seq
 
 
-def get_or_increase_name(name, serial):
+def get_or_increase_name(name: str, serial: int) -> NoReturn:
     certificates = Certificate.query.filter(Certificate.name == name).all()
 
     if not certificates:
@@ -264,7 +265,7 @@ class Certificate(db.Model):
             validators.verify_cert_chain(chain, error_class=AssertionError)
 
     @cached_property
-    def parsed_cert(self):
+    def parsed_cert(self) -> Certificate:
         assert self.body, "Certificate body not set"
         return utils.parse_certificate(self.body)
 

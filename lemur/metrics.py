@@ -5,6 +5,7 @@
 """
 from flask import current_app
 from lemur.plugins.base import plugins
+from typing import Any
 
 
 class Metrics(object):
@@ -25,7 +26,7 @@ class Metrics(object):
         """
         self._providers = app.config.get("METRIC_PROVIDERS", [])
 
-    def send(self, metric_name, metric_type, metric_value, *args, **kwargs):
+    def send(self, metric_name: str, metric_type: str, metric_value: int, *args: Any, **kwargs: Any) -> None:
         for provider in self._providers:
             current_app.logger.debug(
                 "Sending metric '{metric}' to the {provider} provider.".format(

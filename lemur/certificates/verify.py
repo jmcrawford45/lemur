@@ -17,11 +17,14 @@ from subprocess import TimeoutExpired
 from lemur.utils import mktempfile
 from lemur.common.utils import parse_certificate
 from lemur.extensions import metrics
+from typing import Any
+from typing import Optional
+from typing import Tuple
 
 crl_cache = {}
 
 
-def ocsp_verify(cert, cert_path, issuer_chain_path):
+def ocsp_verify(cert: Certificate, cert_path: str, issuer_chain_path: str) -> Optional[Any]:
     """
     Attempts to verify a certificate via OCSP. OCSP is a more modern version
     of CRL in that it will query the OCSP URI in order to determine if the
@@ -95,7 +98,7 @@ def ocsp_verify(cert, cert_path, issuer_chain_path):
     return True
 
 
-def crl_verify(cert, cert_path):
+def crl_verify(cert: Certificate, cert_path: str) -> Optional[bool]:
     """
     Attempts to verify a certificate using CRL.
 
@@ -157,7 +160,7 @@ def crl_verify(cert, cert_path):
     return True
 
 
-def verify(cert_path, issuer_chain_path):
+def verify(cert_path: str, issuer_chain_path: str) -> Tuple[None, int, int]:
     """
     Verify a certificate using OCSP and CRL
 
@@ -198,7 +201,7 @@ def verify(cert_path, issuer_chain_path):
     return verify_result, ocsp_err, crl_err
 
 
-def verify_string(cert_string, issuer_string):
+def verify_string(cert_string: str, issuer_string: str) -> Tuple[None, int, int]:
     """
     Verify a certificate given only it's string value
 

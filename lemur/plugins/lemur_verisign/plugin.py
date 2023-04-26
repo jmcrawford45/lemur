@@ -18,6 +18,9 @@ from lemur.common.utils import get_psuedo_random_string
 from lemur.extensions import metrics
 from lemur.plugins import lemur_verisign as verisign
 from lemur.plugins.bases import IssuerPlugin, SourcePlugin
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 # https://support.venafi.com/entries/66445046-Info-VeriSign-Error-Codes
 VERISIGN_ERRORS = {
@@ -231,7 +234,7 @@ class VerisignIssuerPlugin(IssuerPlugin):
         return cert, chain, external_id
 
     @staticmethod
-    def create_authority(options):
+    def create_authority(options: Dict[str, str]) -> Tuple[None, str, List[Dict[str, str]]]:
         """
         Creates an authority, this authority is then used by Lemur to allow a user
         to specify which Certificate Authority they want to sign their certificate.

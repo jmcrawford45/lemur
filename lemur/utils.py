@@ -12,10 +12,12 @@ from contextlib import contextmanager
 from sqlalchemy import types
 from cryptography.fernet import Fernet, MultiFernet
 from flask import current_app
+from typing import Iterator
+from typing import Union
 
 
 @contextmanager
-def mktempfile():
+def mktempfile() -> Iterator[Union[Iterator, Iterator[str]]]:
     with tempfile.NamedTemporaryFile(delete=False) as f:
         name = f.name
 
@@ -29,7 +31,7 @@ def mktempfile():
 
 
 @contextmanager
-def mktemppath():
+def mktemppath() -> Iterator[Union[Iterator, Iterator[str]]]:
     try:
         path = os.path.join(
             tempfile._get_default_tempdir(), next(tempfile._get_candidate_names())

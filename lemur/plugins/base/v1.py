@@ -9,6 +9,11 @@
 from flask import current_app
 from threading import local
 import re
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
 
 # stolen from https://github.com/getsentry/sentry/
@@ -57,7 +62,7 @@ class IPlugin(local):
     enabled = True
     can_disable = True
 
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
         """
         Returns a boolean representing if this plugin is enabled.
         If ``project`` is passed, it will limit the scope to that project.
@@ -84,7 +89,7 @@ class IPlugin(local):
         """
         return self.conf_title or self.get_title()
 
-    def get_title(self):
+    def get_title(self) -> str:
         """
         Returns the general title for this plugin.
         >>> plugin.get_title()
@@ -111,7 +116,7 @@ class IPlugin(local):
         """
         return self.resource_links
 
-    def get_option(self, name, options):
+    def get_option(self, name: str, options: Union[List[Dict[str, Any]], List[Dict[str, str]]]) -> Optional[str]:
         user_opt = self.get_user_option(name, options)
         if user_opt is None:
             return None
@@ -122,7 +127,7 @@ class IPlugin(local):
 
         return self.validate_option_value(name, value)
 
-    def validate_option_value(self, option_name, value):
+    def validate_option_value(self, option_name: str, value: str) -> str:
         class_opt = self.get_server_options(option_name)
         if not class_opt:
             current_app.logger.warning("Plugin option server-defaults not found")
@@ -142,14 +147,14 @@ class IPlugin(local):
                 raise ValueError(f"Option '{option_name}' doesn't match available options")
         return value
 
-    def get_server_options(self, name):
+    def get_server_options(self, name: str) -> Dict[str, Any]:
         class_options = getattr(self, "options", [])
         for o in class_options:
             if o.get("name") == name:
                 return o
         return None
 
-    def get_user_option(self, name, options):
+    def get_user_option(self, name: str, options: Union[List[Dict[str, Any]], List[Dict[str, str]]]) -> Optional[Dict[str, Any]]:
         for o in options:
             if o.get("name") == name:
                 return o

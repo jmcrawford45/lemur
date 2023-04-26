@@ -14,6 +14,8 @@ from sqlalchemy.orm.collections import InstrumentedList
 
 from inflection import camelize, underscore
 from marshmallow import Schema, post_dump, pre_load
+from typing import Dict
+from typing import Union
 
 
 class LemurSchema(Schema):
@@ -23,7 +25,7 @@ class LemurSchema(Schema):
 
     __envelope__ = True
 
-    def under(self, data, many=None):
+    def under(self, data: Union[Dict[str, bool], Dict[str, str]], many: bool = None) -> Union[Dict[str, bool], Dict[str, str]]:
         items = []
         if many:
             for i in data:
@@ -31,7 +33,7 @@ class LemurSchema(Schema):
             return items
         return {underscore(key): value for key, value in data.items()}
 
-    def camel(self, data, many=None):
+    def camel(self, data: Dict[str, bool], many: bool = None) -> Dict[str, bool]:
         items = []
         if many:
             for i in data:

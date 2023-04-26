@@ -11,6 +11,13 @@ from lemur.plugins import lemur_entrust as entrust
 from lemur.plugins.bases import IssuerPlugin, SourcePlugin
 from lemur.extensions import metrics
 from lemur.common.utils import validate_conf, get_key_type_from_certificate
+from mypy_extensions import NoReturn
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
+from arrow.arrow import Arrow
+from typing import Union
 
 
 def log_status_code(r, *args, **kwargs):
@@ -32,7 +39,7 @@ def log_status_code(r, *args, **kwargs):
         current_app.logger.info(log_data)
 
 
-def determine_end_date(end_date):
+def determine_end_date(end_date: Union[Arrow, int]) -> str:
     """
     Determine appropriate end date
     :param end_date:
@@ -318,7 +325,7 @@ class EntrustIssuerPlugin(IssuerPlugin):
         return handle_response(response)
 
     @retry(stop_max_attempt_number=3, wait_fixed=1000)
-    def deactivate_certificate(self, certificate):
+    def deactivate_certificate(self, certificate: Any) -> NoReturn:
         """Deactivates an Entrust certificate, as long as it is still active, and not already deactivated. """
         log_data = {
             "function": f"{__name__}.{sys._getframe().f_code.co_name}",
@@ -353,7 +360,7 @@ class EntrustIssuerPlugin(IssuerPlugin):
             return 200
 
     @staticmethod
-    def create_authority(options):
+    def create_authority(options: Dict[str, str]) -> Tuple[str, str, List[Dict[str, str]]]:
         """Create an authority.
         Creates an authority, this authority is then used by Lemur to
         allow a user to specify which Certificate Authority they want

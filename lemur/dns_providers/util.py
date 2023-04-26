@@ -29,7 +29,7 @@ class DNSResolveError(DNSError):
         self.message = message
 
 
-def is_valid_domain(domain):
+def is_valid_domain(domain: str) -> bool:
     """Checks if a domain is syntactically valid and returns a bool"""
     if domain[-1] == ".":
         domain = domain[:-1]

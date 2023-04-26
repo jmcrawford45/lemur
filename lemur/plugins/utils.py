@@ -8,6 +8,9 @@
 .. moduleauthor:: Kevin Glisson <kglisson@netflix.com>
 
 """
+from typing import Any
+from typing import Dict
+from typing import List
 
 
 def get_plugin_option(name, options):
@@ -21,7 +24,7 @@ def get_plugin_option(name, options):
             return o.get("value", o.get("default"))
 
 
-def set_plugin_option(name, value, options):
+def set_plugin_option(name: str, value: str, options: List[Dict[str, Any]]) -> None:
     """
     Set value for option name for options dict.
     :param options:

@@ -11,6 +11,9 @@ from flask import current_app
 from lemur.utils import mktempfile, mktemppath
 from lemur.plugins.bases import ExportPlugin
 from lemur.plugins import lemur_csr as csr
+from typing import Any
+from typing import List
+from typing import Tuple
 
 
 def run_process(command):
@@ -30,7 +33,7 @@ def run_process(command):
         raise Exception(stderr)
 
 
-def create_csr(cert, chain, csr_tmp, key):
+def create_csr(cert: str, chain: str, csr_tmp: str, key: str) -> None:
     """
     Creates a csr from key and cert file.
     :param cert:
@@ -68,7 +71,7 @@ class CSRExportPlugin(ExportPlugin):
     author = "jchuong"
     author_url = "https://github.com/jchuong"
 
-    def export(self, body, chain, key, options, **kwargs):
+    def export(self, body: str, chain: str, key: str, options: List, **kwargs: Any) -> Tuple[str, None, bytes]:
         """
         Creates CSR from certificate
 

@@ -13,6 +13,9 @@ from sentry_sdk import capture_exception
 
 from lemur.extensions import metrics
 from lemur.plugins.lemur_aws.sts import sts_client
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 
 def retry_throttled(exception):
@@ -35,7 +38,7 @@ def retry_throttled(exception):
     return True
 
 
-def get_name_from_arn(arn):
+def get_name_from_arn(arn: str) -> str:
     """
     Extract the certificate name from an arn.
 
@@ -50,7 +53,7 @@ def get_name_from_arn(arn):
     return arn.split("/")[-1]
 
 
-def get_path_from_arn(arn):
+def get_path_from_arn(arn: str) -> str:
     """
     Get the certificate path from the certificate arn.
 
@@ -72,7 +75,7 @@ def get_path_from_arn(arn):
         return ''
 
 
-def get_registry_type_from_arn(arn):
+def get_registry_type_from_arn(arn: str) -> str:
     """
     Get the registery type based on the arn.
 
@@ -92,7 +95,7 @@ def get_registry_type_from_arn(arn):
         return 'unknown'
 
 
-def create_arn_from_cert(account_number, partition, certificate_name, path=''):
+def create_arn_from_cert(account_number: str, partition: str, certificate_name: str, path: str = '') -> str:
     """
     Create an ARN from a certificate.
     :param path:
@@ -109,7 +112,7 @@ def create_arn_from_cert(account_number, partition, certificate_name, path=''):
 
 @sts_client("iam")
 @retry(retry_on_exception=retry_throttled, wait_fixed=2000, stop_max_attempt_number=25)
-def upload_cert(name, body, private_key, path, cert_chain=None, **kwargs):
+def upload_cert(name: str, body: str, private_key: str, path: str, cert_chain: Optional[Any] = None, **kwargs: Any) -> Dict[str, Dict[str, Any]]:
     """
     Upload a certificate to AWS
 

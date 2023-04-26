@@ -38,7 +38,7 @@ class UnauthorizedError(LemurException):
     """
     Raised when user is unauthorized to perform an action on the resource
     """
-    def __init__(self, user, resource, action, details="no additional details"):
+    def __init__(self, user: str, resource: str, action: str, details: str = "no additional details") -> None:
         self.user = user
         self.resource = resource
         self.action = action

@@ -16,9 +16,12 @@ from sqlalchemy.sql import and_, or_
 
 from lemur.exceptions import AttrNotFound, DuplicateError
 from lemur.extensions import db
+from typing import Dict
+from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy.model import DefaultMeta
 
 
-def filter_none(kwargs):
+def filter_none(kwargs: Dict) -> Dict:
     """
     Remove all `None` values from a  given dict. SQLAlchemy does not
     like to have values that are None passed to it.
@@ -33,7 +36,7 @@ def filter_none(kwargs):
     return n_kwargs
 
 
-def session_query(model):
+def session_query(model: DefaultMeta) -> BaseQuery:
     """
     Returns a SQLAlchemy query object for the specified `model`.
 
@@ -93,7 +96,7 @@ def get_model_column(model, field):
     return column
 
 
-def find_all(query, model, kwargs):
+def find_all(query: BaseQuery, model: DefaultMeta, kwargs: Dict) -> BaseQuery:
     """
     Returns a query object that ensures that all kwargs
     are present.

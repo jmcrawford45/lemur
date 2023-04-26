@@ -22,6 +22,9 @@ from lemur.constants import CRLReason
 from lemur.plugins.bases import IssuerPlugin
 from lemur.plugins import lemur_cfssl as cfssl
 from lemur.extensions import metrics
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 
 class CfsslIssuerPlugin(IssuerPlugin):
@@ -92,7 +95,7 @@ class CfsslIssuerPlugin(IssuerPlugin):
         )
 
     @staticmethod
-    def create_authority(options):
+    def create_authority(options: Dict[str, str]) -> Tuple[None, str, List[Dict[str, str]]]:
         """
         Creates an authority, this authority is then used by Lemur to allow a user
         to specify which Certificate Authority they want to sign their certificate.

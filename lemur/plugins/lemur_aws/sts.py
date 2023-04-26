@@ -11,6 +11,7 @@ import boto3
 
 from botocore.config import Config
 from flask import current_app
+from typing import Any
 
 
 config = Config(retries=dict(max_attempts=20))
@@ -19,7 +20,7 @@ config = Config(retries=dict(max_attempts=20))
 def sts_client(service, service_type="client"):
     def decorator(f):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             if current_app.config.get("LEMUR_AWS_REGION"):
                 deployment_region = current_app.config.get("LEMUR_AWS_REGION")
                 sts = boto3.client('sts', region_name=deployment_region,

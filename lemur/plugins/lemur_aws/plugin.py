@@ -43,6 +43,10 @@ from lemur.extensions import metrics
 from lemur.plugins import lemur_aws as aws, ExpirationNotificationPlugin
 from lemur.plugins.bases import DestinationPlugin, ExportDestinationPlugin, SourcePlugin
 from lemur.plugins.lemur_aws import iam, s3, elb, ec2, sns, cloudfront
+from typing import Any
+from typing import Dict
+from typing import List
+from test_plugin import Certificate
 
 
 def get_region_from_dns(dns):
@@ -54,7 +58,7 @@ def get_region_from_dns(dns):
         return dns.split(".")[-3]
 
 
-def format_elb_cipher_policy_v2(policy):
+def format_elb_cipher_policy_v2(policy: Dict[str, Any]) -> Dict[str, Any]:
     """
     Attempts to format cipher policy information for elbv2 into a common format.
     :param policy:
@@ -91,7 +95,7 @@ def format_elb_cipher_policy(policy):
     return dict(name=name, ciphers=ciphers)
 
 
-def get_elb_endpoints(account_number, region, elb_dict):
+def get_elb_endpoints(account_number: str, region: str, elb_dict: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Retrieves endpoint information from elb response data.
     :param account_number:
@@ -133,7 +137,7 @@ def get_elb_endpoints(account_number, region, elb_dict):
     return endpoints
 
 
-def get_elb_endpoints_v2(account_number, region, elb_dict):
+def get_elb_endpoints_v2(account_number: str, region: str, elb_dict: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Retrieves endpoint information from elbv2 response data.
     :param account_number:
@@ -286,7 +290,7 @@ class AWSSourcePlugin(SourcePlugin):
             for c in cert_data
         ]
 
-    def get_endpoints(self, options, **kwargs):
+    def get_endpoints(self, options: List[Dict[str, Any]], **kwargs: Any) -> List[Dict[str, Any]]:
         endpoint_type = self.get_option("endpointType", options)
         if endpoint_type == "cloudfront":
             return self.get_distributions(options, **kwargs)
@@ -295,7 +299,7 @@ class AWSSourcePlugin(SourcePlugin):
         else:
             return self.get_load_balancers(options, **kwargs)
 
-    def get_load_balancers(self, options, **kwargs):
+    def get_load_balancers(self, options: List[Dict[str, Any]], **kwargs: Any) -> List[Dict[str, Any]]:
         endpoints = []
         account_number = self.get_option("accountNumber", options)
         regions = self.get_option("regions", options)
@@ -610,7 +614,7 @@ class S3DestinationPlugin(ExportDestinationPlugin):
             }
             current_app.logger.info(log_data)
 
-    def upload_acme_token(self, token_path, token, options, **kwargs):
+    def upload_acme_token(self, token_path: str, token: str, options: List[Dict[str, Any]], **kwargs: Any) -> bool:
         """
         This is called from the acme http challenge
 
@@ -653,7 +657,7 @@ class S3DestinationPlugin(ExportDestinationPlugin):
                                                                "filename": filename})
         return response
 
-    def delete_acme_token(self, token_path, options, **kwargs):
+    def delete_acme_token(self, token_path: str, options: List[Dict[str, Any]], **kwargs: Any) -> bool:
 
         current_app.logger.debug("S3 destination plugin is started to delete HTTP-01 challenge")
 
@@ -680,7 +684,7 @@ class S3DestinationPlugin(ExportDestinationPlugin):
                                                                "filename": filename})
         return response
 
-    def clean(self, certificate, options, **kwargs):
+    def clean(self, certificate: Certificate, options: List[Dict[str, Any]], **kwargs: Any) -> None:
         prefix = self.get_option("prefix", options)
         s3.delete(bucket_name=self.get_option("bucket", options),
                   prefixed_object_name=join(prefix, f"{certificate.name}.pem"),

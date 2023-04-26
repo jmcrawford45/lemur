@@ -11,10 +11,12 @@ from flask import current_app
 from sentry_sdk import capture_exception
 
 from .sts import sts_client
+from typing import Any
+from typing import Optional
 
 
 @sts_client("s3", service_type="resource")
-def put(bucket_name, region_name, prefix, data, encrypt, **kwargs):
+def put(bucket_name: str, region_name: str, prefix: str, data: str, encrypt: bool, **kwargs: Any) -> bool:
     """
     Use STS to write to an S3 bucket
     """
@@ -44,7 +46,7 @@ def put(bucket_name, region_name, prefix, data, encrypt, **kwargs):
 
 
 @sts_client("s3", service_type="client")
-def delete(bucket_name, prefixed_object_name, **kwargs):
+def delete(bucket_name: str, prefixed_object_name: str, **kwargs: Any) -> bool:
     """
     Use STS to delete an object
     """
@@ -61,7 +63,7 @@ def delete(bucket_name, prefixed_object_name, **kwargs):
 
 
 @sts_client("s3", service_type="client")
-def get(bucket_name, prefixed_object_name, **kwargs):
+def get(bucket_name: str, prefixed_object_name: str, **kwargs: Any) -> Optional[str]:
     """
     Use STS to get an object
     """

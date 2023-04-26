@@ -38,6 +38,11 @@ from lemur.plugins.base import plugins
 from lemur.plugins.utils import get_plugin_option
 from lemur.roles import service as role_service
 from lemur.roles.models import Role
+from typing import Any
+from typing import Tuple
+from cryptography.x509.extensions import SubjectAlternativeName
+from typing import Dict
+from typing import Optional
 
 csr_created = signals.signal("csr_created", "CSR generated")
 csr_imported = signals.signal("csr_imported", "CSR imported from external source")
@@ -738,7 +743,7 @@ def query_common_name(common_name, args):
     return query.all()
 
 
-def create_csr(**csr_config):
+def create_csr(**csr_config: Any) -> Tuple[str, str]:
     """
     Given a list of domains create the appropriate csr
     for those domains
@@ -1267,7 +1272,7 @@ def get_expiring_deployed_certificates(exclude=None):
     return certs_domains_and_ports_by_owner
 
 
-def allowed_issuance_for_domain(common_name, extensions):
+def allowed_issuance_for_domain(common_name: Optional[str], extensions: Optional[Dict[str, Dict[str, SubjectAlternativeName]]]) -> None:
     check_permission_for_cn = True if common_name else False
 
     # authorize issuance for every x509.DNSName SAN

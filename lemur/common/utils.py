@@ -31,6 +31,14 @@ from lemur.constants import CERTIFICATE_KEY_TYPES
 from lemur.exceptions import InvalidConfiguration
 from lemur.utils import Vault
 from sqlalchemy.dialects.postgresql import TEXT
+from cryptography.hazmat.backends.openssl.rsa import _RSAPrivateKey
+from typing import List
+from cryptography.hazmat.backends.openssl.ec import _EllipticCurvePrivateKey
+from typing import Union
+from cryptography.hazmat.backends.openssl.ec import _EllipticCurvePublicKey
+from cryptography.hazmat.backends.openssl.rsa import _RSAPublicKey
+from werkzeug.local import LocalProxy
+from pem._core import Certificate
 
 paginated_parser = RequestParser()
 
@@ -73,7 +81,7 @@ def get_state_token_secret():
     return base64.b64encode(get_random_secret(32).encode('utf8'))
 
 
-def parse_certificate(body):
+def parse_certificate(body: str) -> Certificate:
     """
     Helper function that parses a PEM certificate.
 
@@ -85,7 +93,7 @@ def parse_certificate(body):
     return x509.load_pem_x509_certificate(body.encode("utf-8"), default_backend())
 
 
-def parse_private_key(private_key):
+def parse_private_key(private_key: str) -> _RSAPrivateKey:
     """
     Parses a PEM-format private key (RSA, DSA, ECDSA or any other supported algorithm).
 
@@ -100,7 +108,7 @@ def parse_private_key(private_key):
     )
 
 
-def get_key_type_from_certificate(body):
+def get_key_type_from_certificate(body: str) -> str:
     """
 
     Helper function to determine key type by pasrding given PEM certificate
@@ -117,7 +125,7 @@ def get_key_type_from_certificate(body):
         return get_key_type_from_ec_curve(parsed_cert.public_key().curve.name)
 
 
-def split_pem(data):
+def split_pem(data: str) -> List[str]:
     """
     Split a string of several PEM payloads to a list of strings.
 
@@ -127,7 +135,7 @@ def split_pem(data):
     return re.split("\n(?=-----BEGIN )", data)
 
 
-def parse_cert_chain(pem_chain):
+def parse_cert_chain(pem_chain: str) -> List[Certificate]:
     """
     Helper function to split and parse a series of PEM certificates.
 
@@ -151,7 +159,7 @@ def parse_csr(csr):
     return x509.load_pem_x509_csr(csr.encode("utf-8"), default_backend())
 
 
-def get_authority_key(body):
+def get_authority_key(body: str) -> str:
     """Returns the authority key for a given certificate in hex format"""
     parsed_cert = parse_certificate(body)
     authority_key = parsed_cert.extensions.get_extension_for_class(
@@ -160,7 +168,7 @@ def get_authority_key(body):
     return authority_key.hex()
 
 
-def get_key_type_from_ec_curve(curve_name):
+def get_key_type_from_ec_curve(curve_name: str) -> str:
     """
     Give an EC curve name, return the matching key_type.
 
@@ -193,7 +201,7 @@ def get_key_type_from_ec_curve(curve_name):
         return None
 
 
-def generate_private_key(key_type):
+def generate_private_key(key_type: str) -> Union[_EllipticCurvePrivateKey, _RSAPrivateKey]:
     """
     Generates a new private key based on key_type.
 
@@ -245,7 +253,7 @@ def generate_private_key(key_type):
         )
 
 
-def check_cert_signature(cert, issuer_public_key):
+def check_cert_signature(cert: Certificate, issuer_public_key: Union[_EllipticCurvePublicKey, _RSAPublicKey]) -> None:
     """
     Check a certificate's signature against an issuer public key.
     Before EC validation, make sure we support the algorithm, otherwise raise UnsupportedAlgorithm
@@ -283,7 +291,7 @@ def check_cert_signature(cert, issuer_public_key):
         )
 
 
-def is_selfsigned(cert):
+def is_selfsigned(cert: Certificate) -> bool:
     """
     Returns True if the certificate is self-signed.
     Returns False for failed verification or unsupported signing algorithm.
@@ -307,7 +315,7 @@ def is_weekend(date):
         return True
 
 
-def validate_conf(app, required_vars):
+def validate_conf(app: LocalProxy, required_vars: List[str]) -> None:
     """
     Ensures that the given fields are set in the applications conf.
 
@@ -321,7 +329,7 @@ def validate_conf(app, required_vars):
             )
 
 
-def check_validation(validation):
+def check_validation(validation: str) -> str:
     """
     Checks that the given validation string compiles successfully.
 
@@ -404,7 +412,7 @@ def find_matching_certificates_by_hash(cert, matching_certs):
     return matching
 
 
-def convert_pkcs7_bytes_to_pem(certs_pkcs7):
+def convert_pkcs7_bytes_to_pem(certs_pkcs7: bytes) -> List[Certificate]:
     """
     Given a list of certificates in pkcs7 encoding (bytes), covert them into a list of PEM encoded files
     :raises ValueError or ValidationError
@@ -479,7 +487,7 @@ def data_decrypt(ciphertext):
     return Vault().process_result_value(ciphertext.encode("utf8"), TEXT())
 
 
-def is_json(json_input):
+def is_json(json_input: str) -> bool:
     """
     Test if input is json
     :param json_input:

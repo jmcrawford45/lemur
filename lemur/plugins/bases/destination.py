@@ -7,6 +7,9 @@
 .. moduleauthor:: Kevin Glisson <kglisson@netflix.com>
 """
 from lemur.plugins.base import Plugin, plugins
+from typing import Any
+from typing import Dict
+from typing import List
 
 
 class DestinationPlugin(Plugin):
@@ -30,7 +33,7 @@ class ExportDestinationPlugin(DestinationPlugin):
     ]
 
     @property
-    def options(self):
+    def options(self) -> List[Dict[str, Any]]:
         """
         Gets/sets options for the plugin.
 

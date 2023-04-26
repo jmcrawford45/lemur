@@ -15,9 +15,13 @@ from lemur.common.defaults import common_name
 from lemur.common.utils import parse_certificate, parse_cert_chain, parse_private_key, check_validation
 from lemur.plugins import lemur_jks as jks
 from lemur.plugins.bases import ExportPlugin
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 
-def cert_chain_as_der(cert, chain):
+def cert_chain_as_der(cert: str, chain: str) -> List[bytes]:
     """Return a certificate and its chain in a list format, as expected by pyjks."""
 
     certs = [parse_certificate(cert)]
@@ -27,7 +31,7 @@ def cert_chain_as_der(cert, chain):
     return [cert.public_bytes(encoding=serialization.Encoding.DER) for cert in certs]
 
 
-def create_truststore(cert, chain, alias, passphrase):
+def create_truststore(cert: str, chain: str, alias: str, passphrase: str) -> bytes:
     entries = []
     for idx, cert_bytes in enumerate(cert_chain_as_der(cert, chain)):
         # The original cert gets name <ALIAS>_cert, first chain element is <ALIAS>_cert_1, etc.
@@ -37,7 +41,7 @@ def create_truststore(cert, chain, alias, passphrase):
     return KeyStore.new("jks", entries).saves(passphrase)
 
 
-def create_keystore(cert, chain, key, alias, passphrase):
+def create_keystore(cert: str, chain: str, key: str, alias: str, passphrase: str) -> bytes:
     certs_bytes = cert_chain_as_der(cert, chain)
     key_bytes = parse_private_key(key).private_bytes(
         encoding=serialization.Encoding.DER,
@@ -75,7 +79,7 @@ class JavaTruststoreExportPlugin(ExportPlugin):
         },
     ]
 
-    def export(self, body, chain, key, options, **kwargs):
+    def export(self, body: str, chain: str, key: str, options: List[Dict[str, str]], **kwargs: Any) -> Tuple[str, str, bytes]:
         """
         Generates a Java Truststore
         """
@@ -120,7 +124,7 @@ class JavaKeystoreExportPlugin(ExportPlugin):
         },
     ]
 
-    def export(self, body, chain, key, options, **kwargs):
+    def export(self, body: str, chain: str, key: str, options: List[Dict[str, str]], **kwargs: Any) -> Tuple[str, str, bytes]:
         """
         Generates a Java Keystore
         """

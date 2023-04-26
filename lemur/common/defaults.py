@@ -8,9 +8,12 @@ from sentry_sdk import capture_exception
 
 from lemur.common.utils import is_selfsigned
 from lemur.constants import SAN_NAMING_TEMPLATE, DEFAULT_NAMING_TEMPLATE
+from typing import List
+from typing import Optional
+from datetime import datetime
 
 
-def text_to_slug(value, joiner="-"):
+def text_to_slug(value: str, joiner: str = "-") -> str:
     """
     Normalize a string to a "slug" value, stripping character accents and removing non-alphanum characters.
     A series of non-alphanumeric characters is replaced with the joiner character.
@@ -66,11 +69,11 @@ def certificate_name(common_name, issuer, not_before, not_after, san, domains=[]
     return text_to_slug(temp)
 
 
-def signing_algorithm(cert):
+def signing_algorithm(cert: Certificate) -> str:
     return cert.signature_hash_algorithm.name
 
 
-def common_name(cert):
+def common_name(cert: Certificate) -> str:
     """
     Attempts to get a sane common name from a given certificate.
 
@@ -179,7 +182,7 @@ def location(cert):
         current_app.logger.error("Unable to get location! {0}".format(e))
 
 
-def domains(cert):
+def domains(cert: Certificate) -> List[str]:
     """
     Attempts to get an domains listed in a certificate.
     If 'subjectAltName' extension is not available we simply
@@ -206,7 +209,7 @@ def domains(cert):
     return domains
 
 
-def serial(cert):
+def serial(cert: Certificate) -> int:
     """
     Fetch the serial number from the certificate.
 
@@ -216,7 +219,7 @@ def serial(cert):
     return cert.serial_number
 
 
-def san(cert):
+def san(cert: Certificate) -> Optional[bool]:
     """
     Determines if a given certificate is a SAN certificate.
     SAN certificates are simply certificates that cover multiple domains.
@@ -243,7 +246,7 @@ def is_wildcard(cert):
         return True
 
 
-def bitstrength(cert):
+def bitstrength(cert: Certificate) -> int:
     """
     Calculates a certificates public key bit length.
 
@@ -257,7 +260,7 @@ def bitstrength(cert):
         current_app.logger.debug("Unable to get bitstrength.")
 
 
-def issuer(cert):
+def issuer(cert: Certificate) -> str:
     """
     Gets a sane issuer slug from a given certificate, stripping non-alphanumeric characters.
 
@@ -284,7 +287,7 @@ def issuer(cert):
     return text_to_slug(attrs[0].value, "")
 
 
-def not_before(cert):
+def not_before(cert: Certificate) -> datetime:
     """
     Gets the naive datetime of the certificates 'not_before' field.
     This field denotes the first date in time which the given certificate
@@ -296,7 +299,7 @@ def not_before(cert):
     return cert.not_valid_before
 
 
-def not_after(cert):
+def not_after(cert: Certificate) -> datetime:
     """
     Gets the naive datetime of the certificates 'not_after' field.
     This field denotes the last date in time which the given certificate

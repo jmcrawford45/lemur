@@ -7,6 +7,9 @@
 """
 from flask import current_app
 from lemur.common.managers import InstanceManager
+from typing import Any
+from typing import Iterator
+from typing import Optional
 
 
 # inspired by https://github.com/getsentry/sentry
@@ -17,7 +20,7 @@ class PluginManager(InstanceManager):
     def __len__(self):
         return sum(1 for i in self.all())
 
-    def all(self, version=1, plugin_type=None):
+    def all(self, version: int = 1, plugin_type: Optional[Any] = None) -> Iterator[Any]:
         for plugin in sorted(
             super(PluginManager, self).all(), key=lambda x: x.get_title()
         ):
@@ -29,7 +32,7 @@ class PluginManager(InstanceManager):
                 continue
             yield plugin
 
-    def get(self, slug):
+    def get(self, slug: str) -> Any:
         for plugin in self.all(version=1):
             if plugin.slug == slug:
                 return plugin
