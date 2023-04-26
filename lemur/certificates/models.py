@@ -49,7 +49,7 @@ from lemur.models import (
 from lemur.plugins.base import plugins
 from lemur.policies.models import RotationPolicy
 from lemur.utils import Vault
-from mypy_extensions import NoReturn
+from pem import Certificate
 
 
 def get_sequence(name):
@@ -72,7 +72,7 @@ def get_sequence(name):
     return root, seq
 
 
-def get_or_increase_name(name: str, serial: int) -> NoReturn:
+def get_or_increase_name(name: str, serial: int) -> str:
     certificates = Certificate.query.filter(Certificate.name == name).all()
 
     if not certificates:

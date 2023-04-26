@@ -31,14 +31,14 @@ from lemur.constants import CERTIFICATE_KEY_TYPES
 from lemur.exceptions import InvalidConfiguration
 from lemur.utils import Vault
 from sqlalchemy.dialects.postgresql import TEXT
-from cryptography.hazmat.backends.openssl.rsa import _RSAPrivateKey
+from cryptography.hazmat.backends.openssl.rsa import RSAPrivateKey
 from typing import List
-from cryptography.hazmat.backends.openssl.ec import _EllipticCurvePrivateKey
+from cryptography.hazmat.backends.openssl.ec import EllipticCurvePrivateKey
 from typing import Union
-from cryptography.hazmat.backends.openssl.ec import _EllipticCurvePublicKey
-from cryptography.hazmat.backends.openssl.rsa import _RSAPublicKey
+from cryptography.hazmat.backends.openssl.ec import EllipticCurvePublicKey
+from cryptography.hazmat.backends.openssl.rsa import RSAPublicKey
 from werkzeug.local import LocalProxy
-from pem._core import Certificate
+from pem import Certificate
 
 paginated_parser = RequestParser()
 
@@ -93,7 +93,7 @@ def parse_certificate(body: str) -> Certificate:
     return x509.load_pem_x509_certificate(body.encode("utf-8"), default_backend())
 
 
-def parse_private_key(private_key: str) -> _RSAPrivateKey:
+def parse_private_key(private_key: str) -> RSAPrivateKey:
     """
     Parses a PEM-format private key (RSA, DSA, ECDSA or any other supported algorithm).
 
@@ -201,7 +201,7 @@ def get_key_type_from_ec_curve(curve_name: str) -> str:
         return None
 
 
-def generate_private_key(key_type: str) -> Union[_EllipticCurvePrivateKey, _RSAPrivateKey]:
+def generate_private_key(key_type: str) -> Union[EllipticCurvePrivateKey, RSAPrivateKey]:
     """
     Generates a new private key based on key_type.
 
@@ -253,7 +253,7 @@ def generate_private_key(key_type: str) -> Union[_EllipticCurvePrivateKey, _RSAP
         )
 
 
-def check_cert_signature(cert: Certificate, issuer_public_key: Union[_EllipticCurvePublicKey, _RSAPublicKey]) -> None:
+def check_cert_signature(cert: Certificate, issuer_public_key: Union[EllipticCurvePublicKey, RSAPublicKey]) -> None:
     """
     Check a certificate's signature against an issuer public key.
     Before EC validation, make sure we support the algorithm, otherwise raise UnsupportedAlgorithm

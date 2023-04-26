@@ -46,7 +46,7 @@ from lemur.plugins.lemur_aws import iam, s3, elb, ec2, sns, cloudfront
 from typing import Any
 from typing import Dict
 from typing import List
-from test_plugin import Certificate
+from pem import Certificate
 
 
 def get_region_from_dns(dns):

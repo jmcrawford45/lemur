@@ -22,6 +22,7 @@ from lemur.certificates.service import create_csr
 from typing import Dict
 from typing import Tuple
 from typing import List
+from cryptography.x509 import CertificateSigningRequest
 
 
 def build_certificate_authority(options: Dict[str, str]) -> Tuple[str, str, str]:

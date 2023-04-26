@@ -20,6 +20,7 @@ from lemur.extensions import metrics
 from typing import Any
 from typing import Optional
 from typing import Tuple
+from pem import Certificate
 
 crl_cache = {}
 
@@ -173,7 +174,7 @@ def verify(cert_path: str, issuer_chain_path: str) -> Tuple[None, int, int]:
             cert = parse_certificate(c.read())
         except ValueError as e:
             current_app.logger.error(e)
-            return None
+            return None, 1, 1
 
     # OCSP is our main source of truth, in a lot of cases CRLs
     # have been deprecated and are no longer updated

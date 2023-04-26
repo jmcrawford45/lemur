@@ -11,6 +11,7 @@ from lemur.constants import SAN_NAMING_TEMPLATE, DEFAULT_NAMING_TEMPLATE
 from typing import List
 from typing import Optional
 from datetime import datetime
+from pem import Certificate
 
 
 def text_to_slug(value: str, joiner: str = "-") -> str:

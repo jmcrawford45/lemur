@@ -468,7 +468,7 @@ class DigiCertIssuerPlugin(IssuerPlugin):
             )
 
     @staticmethod
-    def create_authority(options: Dict[str, str]) -> Tuple[coroutine, str, List[Dict[str, str]]]:
+    def create_authority(options: Dict[str, str]) -> Tuple[Optional[str], str, List[Dict[str, str]]]:
         """Create an authority.
 
         Creates an authority, this authority is then used by Lemur to
