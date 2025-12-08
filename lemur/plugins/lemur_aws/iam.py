@@ -288,15 +288,15 @@ def _filter_ignored_certificates(certificates, **kwargs):
         filtered_certificates = []
 
         for cert in certificates:
-            # Get the ARN for the certificate
-            cert_arn = cert.get("ServerCertificateMetadata", {}).get("Arn")
-            if not cert_arn:
+            # Get the certificate name for the certificate
+            cert_name = cert.get("ServerCertificateMetadata", {}).get("ServerCertificateName")
+            if not cert_name:
                 filtered_certificates.append(cert)
                 continue
 
             try:
                 # Get tags for the certificate
-                tags_response = client.list_tags_for_resource(ResourceName=cert_arn)
+                tags_response = client.list_server_certificate_tags(ServerCertificateName=cert_name)
                 tags = tags_response.get("Tags", [])
 
                 # If the certificate has any ignore tags, skip it
