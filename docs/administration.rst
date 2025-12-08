@@ -276,6 +276,25 @@ Basic Configuration
         DEFAULT_VALIDITY_DAYS = 1095
 
 
+.. data:: LEMUR_AUTOROTATION_USE_DEFAULT_VALIDITY
+    :noindex:
+
+        When set to True, certificates with autorotation enabled will use the authority's default validity period upon
+        reissuance, instead of maintaining the original certificate's validity span. This is useful when you want all
+        autorotated certificates to use a standardized validity period based on the authority's configuration (e.g.,
+        PUBLIC_CA_DEFAULT_VALIDITY_DAYS for CAB-compliant authorities, or DEFAULT_VALIDITY_DAYS for other authorities).
+
+        This feature only affects certificates that have autorotation (rotation flag) enabled. Certificates without
+        autorotation will continue to maintain their original validity span during reissuance, regardless of this setting.
+
+        The default value is False, which maintains backward compatibility by preserving the original certificate's
+        validity span during reissuance.
+
+    ::
+
+        LEMUR_AUTOROTATION_USE_DEFAULT_VALIDITY = False
+
+
 .. data:: DEBUG_DUMP
     :noindex:
 
@@ -546,9 +565,43 @@ to enable it, you must set the option ``--notify`` (when using cron) or the conf
         Use this config (optional) to migrate from one authority id to another on reissuance (useful for expiring authorities,
         key migrations, etc).
 
-    ::
+        This configuration supports two types of values:
+
+        1. **Static mapping** (integer): Maps an old authority ID directly to a new authority ID.
+        2. **Dynamic callback** (callable): A function that receives a certificate object and returns the new authority ID based on certificate properties.
+
+    Static mapping example::
 
         ROTATE_AUTHORITY_TRANSLATION = {1: 2}
+
+    Callback function example::
+
+        def select_authority_for_renewal(certificate):
+            """
+            Dynamically determine the authority for certificate renewal.
+
+            Args:
+                certificate: Certificate object with properties like:
+                    - owner: str
+                    - destinations: list of Destination objects
+                    - key_type: str
+                    - cn: str
+                    - san: str
+                    - authority: Authority object
+                    - authority_id: int
+
+            Returns:
+                int: The new authority ID to use
+            """
+            # Example: Select authority based on destinations
+            destination_labels = [dest.label for dest in certificate.destinations]
+            if 'production-aws' in destination_labels:
+                return 3  # Use cross-signed chain for production AWS
+            elif 'legacy-systems' in destination_labels:
+                return 4  # Use older authority for legacy compatibility
+            return certificate.authority_id  # Keep original authority
+
+        ROTATE_AUTHORITY_TRANSLATION = {1: select_authority_for_renewal}
 
 
 **Certificate rotation**
@@ -1723,16 +1776,33 @@ The following configuration properties are optional when using the Digicert CIS 
             Defines the default signing algorithm for a given issuer name e.g. {"Digicert": "sha1"} will result in sha1 certs issued with the Digicert issuer (default = {}).
 
 
-.. data:: DIGICERT_CIS_ROOTS
-    :noindex:
-
-            A string->string mapping from issuer name to root PEM. These will be optionally be appended to / stripped from response chains as requested by users.
 
 
 .. data:: DIGICERT_CIS_USE_CSR_FIELDS
     :noindex:
 
             Controls the setting of the `use_csr_fields` parameter of the create certificate endpoint. When set, certificates will be issued with values from the csr instead of via API fields (default = False).
+
+
+.. data:: DIGICERT_CIS_ROOTS
+    :noindex:
+
+            A string->string mapping from authority name to root certificate PEM. This is used during authority creation to store the root certificate in Lemur's database.
+
+
+.. data:: DIGICERT_CIS_ALTERNATE_CHAINS
+    :noindex:
+
+            A string->string mapping from authority name to alternate/cross-signed chain PEM. When configured, the specified chain will be appended to certificates issued by that authority. This is useful for providing cross-signed roots for compatibility with older systems.
+
+            Example::
+
+                DIGICERT_CIS_ALTERNATE_CHAINS = {
+                    "DigiCert-G2-RSA-Cross-Global": """-----BEGIN CERTIFICATE-----
+                MIIEgjCCA2qgAwIBAgIQBEbB7LuEYrWpF3L5qhjmezANBgkqhkiG9w0BAQsFADBh
+                ...
+                -----END CERTIFICATE-----"""
+                }
 
 
 CFSSL Issuer Plugin

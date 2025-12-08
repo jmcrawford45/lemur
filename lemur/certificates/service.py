@@ -933,17 +933,32 @@ def get_name_from_arn(arn):
     return arn.split("/", 1)[1]
 
 
-def calculate_reissue_range(start, end):
+def calculate_reissue_range(start, end, authority=None, rotation=False):
     """
     Determine what the new validity_start and validity_end dates should be.
     :param start:
     :param end:
+    :param authority: Optional authority to use for default validity calculation
+    :param rotation: Whether this certificate has autorotation enabled
     :return:
     """
-    span = end - start
-
     new_start = arrow.utcnow()
-    new_end = new_start + span
+
+    # Check if we should use default validity for autorotation reissues
+    use_default_validity = (
+        rotation
+        and authority
+        and current_app.config.get("LEMUR_AUTOROTATION_USE_DEFAULT_VALIDITY")
+    )
+
+    if use_default_validity:
+        # Use authority's default validity days
+        default_days = authority.default_validity_days
+        new_end = new_start.shift(days=default_days)
+    else:
+        # Use original certificate's validity span
+        span = end - start
+        new_end = new_start + span
 
     return new_start, arrow.get(new_end)
 
@@ -956,7 +971,12 @@ def get_certificate_primitives(certificate):
     :return: dict of certificate primitives, should be enough to effectively re-issue
     certificate via `create`.
     """
-    start, end = calculate_reissue_range(certificate.not_before, certificate.not_after)
+    start, end = calculate_reissue_range(
+        certificate.not_before,
+        certificate.not_after,
+        authority=certificate.authority,
+        rotation=certificate.rotation
+    )
     ser = CertificateInputSchema().load(
         CertificateOutputSchema().dump(certificate).data
     )
@@ -1001,10 +1021,40 @@ def reissue_certificate(certificate, notify=None, replace=None, user=None):
     if replace:
         primitives["replaces"] = [certificate]
 
-    if primitives["authority"].id in current_app.config.get("ROTATE_AUTHORITY_TRANSLATION", {}):
-        primitives["authority"] = database.get(Authority,
-            current_app.config.get("ROTATE_AUTHORITY_TRANSLATION", {})[primitives["authority"].id]
-        )
+    # Support both static authority ID mapping and dynamic callback functions
+    authority_translation = current_app.config.get("ROTATE_AUTHORITY_TRANSLATION", {})
+    if primitives["authority"].id in authority_translation:
+        original_authority_id = primitives["authority"].id
+        original_authority_name = primitives["authority"].name
+        translation_value = authority_translation[primitives["authority"].id]
+
+        # Check if the value is a callable (function)
+        if callable(translation_value):
+            # Call the function with the certificate to determine the new authority ID
+            new_authority_id = translation_value(certificate)
+            if new_authority_id is not None:
+                primitives["authority"] = database.get(Authority, new_authority_id)
+        else:
+            # Static integer mapping (original behavior)
+            new_authority_id = translation_value
+            primitives["authority"] = database.get(Authority, translation_value)
+
+        # Log and metric the translation
+        if new_authority_id is not None:
+            current_app.logger.info(
+                f"Authority translated for certificate {certificate.name}: "
+                f"{original_authority_name} (ID: {original_authority_id}) -> "
+                f"{primitives['authority'].name} (ID: {new_authority_id})"
+            )
+            metrics.send(
+                "certificate_authority_translation",
+                "counter",
+                1,
+                metric_tags={
+                    "original_authority": original_authority_name,
+                    "new_authority": primitives["authority"].name,
+                }
+            )
 
     # Modify description to include the certificate ID being reissued and mention that this is created by Lemur
     # as part of reissue
