@@ -1832,7 +1832,7 @@ class CertificateDescriptionUpdate(AuthenticatedResource):
                 return dict(message=message), code
 
         cert = service.update_description(cert, description=description)
-        log_service.create(g.current_user, "update_cert_description", certificate=cert)
+        log_service.create(g.current_user, "update_cert", certificate=cert)
         return cert
 
 
