@@ -3,6 +3,8 @@ Changelog
 
 Unreleased
 ~~~~~~~~~~~~~~~~~~~~
+Added ENABLE_AUTOROTATION_FILTER: a configurable, plugin-independent callback that can be used to skip enabling autorotate
+based on your specific business logic. For example, you could disallow enabling autorotate on certs with notifications disabled.
 Added REISSUE_FILTER: a configurable, plugin-independent callback that can be used to reject reissuance requests
 based on your specific business logic. For example, you could disallow reissuing certs on abandoned ELBs
 Added AWS_ELB_IGNORE_TAGS to allow mutiple ELB tags to be ignored.
