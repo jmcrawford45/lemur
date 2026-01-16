@@ -902,6 +902,23 @@ def automatically_enable_autorotate_with_endpoint():
             if not no_authority_restrictions and cert.authority_id not in permitted_authorities:
                 continue
 
+            # Check if filter exists and if cert passes the filter
+            if current_app.config.get("ENABLE_AUTOROTATION_FILTER") and not current_app.config.get("ENABLE_AUTOROTATION_FILTER")(cert):
+                skip_log_data = {
+                    "function": f"{__name__}.{sys._getframe().f_code.co_name}",
+                    "message": "Skipping certificate due to ENABLE_AUTOROTATION_FILTER",
+                    "certificate": cert.name,
+                    "certificate_id": cert.id,
+                    "authority_id": cert.authority_id
+                }
+                current_app.logger.debug(skip_log_data)
+                metrics.send("automatically_enable_autorotate_with_endpoint.filtered",
+                             "counter", 1,
+                             metric_tags={"certificate": cert.name,
+                                          "certificate_id": str(cert.id),
+                                          "authority_id": str(cert.authority_id)})
+                continue
+
             log_data["certificate"] = cert.name
             log_data["certificate_id"] = cert.id
             log_data["authority_id"] = cert.authority_id
@@ -994,6 +1011,23 @@ def automatically_enable_autorotate_with_destination():
     for cert in eligible_certs:
 
         if not no_authority_restrictions and cert.authority_id not in permitted_authorities:
+            continue
+
+        # Check if filter exists and if cert passes the filter
+        if current_app.config.get("ENABLE_AUTOROTATION_FILTER") and not current_app.config.get("ENABLE_AUTOROTATION_FILTER")(cert):
+            skip_log_data = {
+                "function": f"{__name__}.{sys._getframe().f_code.co_name}",
+                "message": "Skipping certificate due to ENABLE_AUTOROTATION_FILTER",
+                "certificate": cert.name,
+                "certificate_id": cert.id,
+                "authority_id": cert.authority_id
+            }
+            current_app.logger.debug(skip_log_data)
+            metrics.send("automatically_enable_autorotate_with_destination.filtered",
+                         "counter", 1,
+                         metric_tags={"certificate": cert.name,
+                                      "certificate_id": str(cert.id),
+                                      "authority_id": str(cert.authority_id)})
             continue
 
         log_data["certificate"] = cert.name
