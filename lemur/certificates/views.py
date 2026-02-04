@@ -733,6 +733,11 @@ class CertificatePrivateKey(AuthenticatedResource):
             if not permission.can():
                 return dict(message="You are not authorized to view this key"), 403
 
+        if current_app.config.get("CERTIFICATE_EXPORT_KEY_REQUEST_VALIDATION"):
+            message, code = current_app.config.get("CERTIFICATE_EXPORT_KEY_REQUEST_VALIDATION")(cert, g.current_user)
+            if message and code:
+                return dict(message=message), code
+
         log_service.create(g.current_user, "key_view", certificate=cert)
         response = make_response(jsonify(key=cert.private_key), 200)
         response.headers["cache-control"] = "private, max-age=0, no-cache, no-store"
