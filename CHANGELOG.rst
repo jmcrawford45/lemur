@@ -16,6 +16,9 @@ volume of unused certs.
 Added CERTIFICATE_CREATE_REQUEST_VALIDATION: a configurable, plugin-independent callback that can be used to reject requests
 based on your specific business logic. For example, you could disallow certs with rotate set and no destinations to reduce
 volume of unused certs.
+Added CERTIFICATE_EXPORT_KEY_REQUEST_VALIDATION: a configurable, plugin-independent callback that can be used to reject
+private key export requests based on your specific business logic. For example, you could block specific API keys from
+exporting private keys for migrated certificates.
 Added the disable_autorotate_without_endpoint celery task, along with a customizable DISABLE_AUTOROTATION_FILTER
 function you can use to determine when to disable autorotate. By default, nothing will be changed by this task when scheduled.
 Added a new API endpoint `/certificates/{certificate_id}/description` for updating just the description field of a certificate, avoiding the need to provide the full certificate object for simple description updates.
