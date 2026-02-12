@@ -903,10 +903,10 @@ def automatically_enable_autorotate_with_endpoint():
                 continue
 
             # Check if filter exists and if cert passes the filter
-            if current_app.config.get("ENABLE_AUTOROTATION_FILTER") and not current_app.config.get("ENABLE_AUTOROTATION_FILTER")(cert):
+            if current_app.config.get("ENABLE_AUTOROTATION_FILTER_FOR_ENDPOINT") and not current_app.config.get("ENABLE_AUTOROTATION_FILTER_FOR_ENDPOINT")(cert):
                 skip_log_data = {
                     "function": f"{__name__}.{sys._getframe().f_code.co_name}",
-                    "message": "Skipping certificate due to ENABLE_AUTOROTATION_FILTER",
+                    "message": "Skipping certificate due to ENABLE_AUTOROTATION_FILTER_FOR_ENDPOINT",
                     "certificate": cert.name,
                     "certificate_id": cert.id,
                     "authority_id": cert.authority_id
