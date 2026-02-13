@@ -3858,7 +3858,7 @@ components:
                 type: integer
               name:
                 type: string
-        replaced:
+        replacedBy:
           type: array
           items:
             type: object
@@ -4140,7 +4140,7 @@ components:
         revoked:
           type: boolean
           description: Whether the API key is revoked
-        issued_at:
+        issuedAt:
           type: string
           format: date-time
           description: When the API key was issued
@@ -4159,7 +4159,7 @@ components:
     LemurDefaults:
       type: object
       properties:
-        common_name:
+        commonName:
           type: array
           items:
             type: string
@@ -4173,13 +4173,13 @@ components:
         location:
           type: string
           description: Default location
-        organizational_unit:
+        organizationalUnit:
           type: string
           description: Default organizational unit
         organization:
           type: string
           description: Default organization
-        default_authority:
+        defaultAuthority:
           type: object
           properties:
             name:
@@ -4274,7 +4274,7 @@ components:
         description:
           type: string
           description: DNS provider description
-        provider_type:
+        providerType:
           type: string
           description: Type of DNS provider
         credentials:
@@ -4349,7 +4349,7 @@ components:
         status:
           type: string
           description: Certificate status
-        external_id:
+        externalId:
           type: string
           description: External identifier
         csr:
@@ -4358,7 +4358,7 @@ components:
         chain:
           type: string
           description: Certificate chain in PEM format
-        private_key:
+        privateKey:
           type: string
           description: Private key in PEM format
         notify:
